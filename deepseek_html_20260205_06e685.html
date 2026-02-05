@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acompanhamento de Tarefas Semanais</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 8px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background-color: #2ecc71;
+        }
+        
+        .status-offline {
+            background-color: #e74c3c;
+        }
+        
+        .supervision-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .supervision-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .supervisors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .supervisor {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 18px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .supervisor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #eaeaea;
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        td {
+            padding: 16px 15px;
+        }
+        
+        .task-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .task-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .status-cell {
+            text-align: center;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-in-progress {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .priority-high {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .priority-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .priority-low {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .btn-edit {
+            color: #3498db;
+        }
+        
+        .btn-delete {
+            color: #e74c3c;
+        }
+        
+        .btn-complete {
+            color: #2ecc71;
+        }
+        
+        .realtime-indicator {
+            background: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 12px 15px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .realtime-indicator i {
+            margin-right: 10px;
+            color: #3498db;
+            font-size: 1.2rem;
+        }
+        
+        .add-task-btn {
+            display: inline-flex;
+            align-items: center;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+        
+        .add-task-btn:hover {
+            background: #27ae60;
+        }
+        
+        .add-task-btn i {
+            margin-right: 8px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-info {
+                flex-direction: column;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tasks"></i> Acompanhamento de Tarefas Semanais</h1>
+            <p class="subtitle">Sistema de supervisão compartilhada em tempo real</p>
+        </header>
+        
+        <div class="realtime-indicator">
+            <i class="fas fa-sync-alt fa-spin"></i>
+            <span><strong>Modo de supervisão ativo:</strong> Alterações são visíveis para supervisores em tempo real</span>
+        </div>
+        
+        <div class="dashboard-info">
+            <div class="info-card">
+                <h3>Funcionário</h3>
+                <p><i class="fas fa-user"></i> João da Silva</p>
+                <p><i class="fas fa-briefcase"></i> Analista de Marketing</p>
+                <p><i class="fas fa-calendar-week"></i> Semana: 21/10 - 25/10/2024</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>Status das Tarefas</h3>
+                <p><span class="status-indicator status-online"></span> Em andamento: <strong>4 tarefas</strong></p>
+                <p><span class="status-indicator status-completed"></span> Concluídas: <strong>3 tarefas</strong></p>
+                <p><span class="status-indicator status-pending"></span> Pendentes: <strong>2 tarefas</strong></p>
+                <p><span class="status-indicator status-overdue"></span> Atrasadas: <strong>1 tarefa</strong></p>
+            </div>
+            
+            <div class="info-card">
+                <h3>Supervisores Online</h3>
+                <p><span class="status-indicator status-online"></span> Maria Oliveira (Gerente)</p>
+                <p><span class="status-indicator status-online"></span> Carlos Mendes (Coord.)</p>
+                <p><span class="status-indicator status-offline"></span> Ana Santos (Supervisora)</p>
+                <p>Total: 2/3 supervisores online</p>
+            </div>
+        </div>
+        
+        <div class="supervision-section">
+            <h2><i class="fas fa-users"></i> Supervisão Compartilhada</h2>
+            <div class="supervisors">
+                <div class="supervisor">
+                    <div class="supervisor-avatar">MO</div>
+                    <div>
+                        <p><strong>Maria Oliveira</strong></p>
+                        <p>Gerente de Marketing • Online</p>
+                    </div>
+                </div>
+                <div class="supervisor">
+                    <div class="supervisor-avatar">CM</div>
+                    <div>
+                        <p><strong>Carlos Mendes</strong></p>
+                        <p>Coordenador • Online</p>
+                    </div>
+                </div>
+                <div class="supervisor">
+                    <div class="supervisor-avatar">AS</div>
+                    <div>
+                        <p><strong>Ana Santos</strong></p>
+                        <p>Supervisora • Offline (última vez: 10:45)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="25%">Tarefa</th>
+                        <th width="15%">Prioridade</th>
+                        <th width="15%">Status</th>
+                        <th width="20%">Data de Conclusão</th>
+                        <th width="15%">Supervisor Responsável</th>
+                        <th width="10%">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTable">
+                    <!-- Tarefas serão inseridas aqui pelo JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <button class="add-task-btn" id="addTaskBtn">
+            <i class="fas fa-plus-circle"></i> Adicionar Nova Tarefa
+        </button>
+        
+        <!-- Modal para adicionar/editar tarefa -->
+        <div class="modal" id="taskModal">
+            <div class="modal-content">
+                <h3 id="modalTitle">Adicionar Nova Tarefa</h3>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="taskName">Nome da Tarefa</label>
+                        <input type="text" id="taskName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskDescription">Descrição</label>
+                        <textarea id="taskDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskPriority">Prioridade</label>
+                        <select id="taskPriority" class="form-control" required>
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskDueDate">Data de Conclusão</label>
+                        <input type="date" id="taskDueDate" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskSupervisor">Supervisor Responsável</label>
+                        <select id="taskSupervisor" class="form-control" required>
+                            <option value="Maria Oliveira">Maria Oliveira</option>
+                            <option value="Carlos Mendes">Carlos Mendes</option>
+                            <option value="Ana Santos">Ana Santos</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Tarefa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Sistema de Acompanhamento de Tarefas Semanais • Atualizado em tempo real • Versão 1.0</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Dados iniciais das tarefas
+        let tasks = [
+            {
+                id: 1,
+                name: "Relatório de métricas",
+                description: "Analisar e compilar métricas de campanhas do mês",
+                priority: "high",
+                status: "in-progress",
+                dueDate: "2024-10-22",
+                supervisor: "Maria Oliveira",
+                lastUpdated: "Hoje, 09:30"
+            },
+            {
+                id: 2,
+                name: "Reunião com equipe",
+                description: "Planejamento semanal com a equipe de marketing",
+                priority: "medium",
+                status: "completed",
+                dueDate: "2024-10-21",
+                supervisor: "Carlos Mendes",
+                lastUpdated: "Hoje, 10:15"
+            },
+            {
+                id: 3,
+                name: "Criar conteúdo para redes",
+                description: "Preparar posts para Instagram e LinkedIn",
+                priority: "medium",
+                status: "in-progress",
+                dueDate: "2024-10-23",
+                supervisor: "Ana Santos",
+                lastUpdated: "Ontem, 16:45"
+            },
+            {
+                id: 4,
+                name: "Atualizar planilha de orçamento",
+                description: "Revisar e atualizar planilha de orçamento do trimestre",
+                priority: "high",
+                status: "pending",
+                dueDate: "2024-10-24",
+                supervisor: "Maria Oliveira",
+                lastUpdated: "22/10, 14:20"
+            },
+            {
+                id: 5,
+                name: "Pesquisa de mercado",
+                description: "Analisar concorrência e tendências do setor",
+                priority: "low",
+                status: "pending",
+                dueDate: "2024-10-25",
+                supervisor: "Carlos Mendes",
+                lastUpdated: "21/10, 11:10"
+            },
+            {
+                id: 6,
+                name: "Preparar apresentação",
+                description: "Slides para reunião de resultados",
+                priority: "high",
+                status: "overdue",
+                dueDate: "2024-10-18",
+                supervisor: "Ana Santos",
+                lastUpdated: "20/10, 09:00"
+            },
+            {
+                id: 7,
+                name: "Responder e-mails pendentes",
+                description: "Responder a todos os e-mails pendentes",
+                priority: "medium",
+                status: "completed",
+                dueDate: "2024-10-21",
+                supervisor: "Maria Oliveira",
+                lastUpdated: "Hoje, 08:45"
+            },
+            {
+                id: 8,
+                name: "Atualizar site corporativo",
+                description: "Incluir novas informações na página sobre",
+                priority: "medium",
+                status: "in-progress",
+                dueDate: "2024-10-24",
+                supervisor: "Carlos Mendes",
+                lastUpdated: "Hoje, 11:30"
+            },
+            {
+                id: 9,
+                name: "Organizar arquivos digitais",
+                description: "Reorganizar pasta compartilhada da equipe",
+                priority: "low",
+                status: "completed",
+                dueDate: "2024-10-22",
+                supervisor: "Ana Santos",
+                lastUpdated: "Hoje, 10:00"
+            }
+        ];
+        
+        // Elementos do DOM
+        const tasksTable = document.getElementById('tasksTable');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskModal = document.getElementById('taskModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const taskForm = document.getElementById('taskForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        
+        // Elementos do formulário
+        const taskName = document.getElementById('taskName');
+        const taskDescription = document.getElementById('taskDescription');
+        const taskPriority = document.getElementById('taskPriority');
+        const taskDueDate = document.getElementById('taskDueDate');
+        const taskSupervisor = document.getElementById('taskSupervisor');
+        
+        let editingTaskId = null;
+        
+        // Função para formatar data
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        // Função para obter o texto da prioridade
+        function getPriorityText(priority) {
+            const priorities = {
+                'low': 'Baixa',
+                'medium': 'Média',
+                'high': 'Alta'
+            };
+            return priorities[priority] || priority;
+        }
+        
+        // Função para obter o texto do status
+        function getStatusText(status) {
+            const statuses = {
+                'pending': 'Pendente',
+                'in-progress': 'Em Andamento',
+                'completed': 'Concluída',
+                'overdue': 'Atrasada'
+            };
+            return statuses[status] || status;
+        }
+        
+        // Função para renderizar a tabela de tarefas
+        function renderTasks() {
+            tasksTable.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const row = document.createElement('tr');
+                
+                // Determinar classe de status
+                let statusClass = '';
+                if (task.status === 'pending') statusClass = 'status-pending';
+                if (task.status === 'in-progress') statusClass = 'status-in-progress';
+                if (task.status === 'completed') statusClass = 'status-completed';
+                if (task.status === 'overdue') statusClass = 'status-overdue';
+                
+                // Determinar classe de prioridade
+                let priorityClass = '';
+                if (task.priority === 'low') priorityClass = 'priority-low';
+                if (task.priority === 'medium') priorityClass = 'priority-medium';
+                if (task.priority === 'high') priorityClass = 'priority-high';
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="task-name">${task.name}</div>
+                        <div class="task-description">${task.description}</div>
+                        <div class="task-description"><small><i>Última atualização: ${task.lastUpdated}</i></small></div>
+                    </td>
+                    <td>
+                        <span class="priority-badge ${priorityClass}">${getPriorityText(task.priority)}</span>
+                    </td>
+                    <td class="status-cell">
+                        <span class="status-badge ${statusClass}">${getStatusText(task.status)}</span>
+                    </td>
+                    <td>${formatDate(task.dueDate)}</td>
+                    <td>${task.supervisor}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="action-btn btn-complete" onclick="markAsCompleted(${task.id})" title="Marcar como concluída">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="action-btn btn-edit" onclick="editTask(${task.id})" title="Editar tarefa">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteTask(${task.id})" title="Excluir tarefa">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tasksTable.appendChild(row);
+            });
+            
+            // Atualizar contadores do dashboard
+            updateDashboardCounters();
+        }
+        
+        // Função para atualizar os contadores do dashboard
+        function updateDashboardCounters() {
+            const inProgressCount = tasks.filter(task => task.status === 'in-progress').length;
+            const completedCount = tasks.filter(task => task.status === 'completed').length;
+            const pendingCount = tasks.filter(task => task.status === 'pending').length;
+            const overdueCount = tasks.filter(task => task.status === 'overdue').length;
+            
+            // Em uma aplicação real, atualizaria os elementos do dashboard
+            console.log(`Atualizando dashboard: Em andamento: ${inProgressCount}, Concluídas: ${completedCount}, Pendentes: ${pendingCount}, Atrasadas: ${overdueCount}`);
+            
+            // Simulação de atualização em tempo real para supervisores
+            simulateRealTimeUpdate();
+        }
+        
+        // Função para simular atualização em tempo real
+        function simulateRealTimeUpdate() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            console.log(`[${timeString}] Sistema atualizado: ${tasks.length} tarefas sincronizadas com supervisores`);
+            
+            // Em uma aplicação real, aqui seria feita a sincronização com servidor
+            // para notificar supervisores sobre mudanças
+        }
+        
+        // Função para adicionar nova tarefa
+        function addTask(taskData) {
+            const newTask = {
+                id: tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
+                name: taskData.name,
+                description: taskData.description,
+                priority: taskData.priority,
+                status: 'pending',
+                dueDate: taskData.dueDate,
+                supervisor: taskData.supervisor,
+                lastUpdated: 'Agora'
+            };
+            
+            tasks.push(newTask);
+            renderTasks();
+            closeModal();
+            
+            // Simular notificação para supervisores
+            notifySupervisors(`Nova tarefa adicionada: "${taskData.name}"`);
+        }
+        
+        // Função para editar tarefa existente
+        function updateTask(taskId, taskData) {
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            
+            if (taskIndex !== -1) {
+                tasks[taskIndex] = {
+                    ...tasks[taskIndex],
+                    name: taskData.name,
+                    description: taskData.description,
+                    priority: taskData.priority,
+                    dueDate: taskData.dueDate,
+                    supervisor: taskData.supervisor,
+                    lastUpdated: 'Agora'
+                };
+                
+                renderTasks();
+                closeModal();
+                
+                // Simular notificação para supervisores
+                notifySupervisors(`Tarefa atualizada: "${taskData.name}"`);
+            }
+        }
+        
+        // Função para marcar tarefa como concluída
+        function markAsCompleted(taskId) {
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            
+            if (taskIndex !== -1) {
+                tasks[taskIndex].status = 'completed';
+                tasks[taskIndex].lastUpdated = 'Agora';
+                renderTasks();
+                
+                // Simular notificação para supervisores
+                notifySupervisors(`Tarefa concluída: "${tasks[taskIndex].name}"`);
+            }
+        }
+        
+        // Função para excluir tarefa
+        function deleteTask(taskId) {
+            if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+                const taskIndex = tasks.findIndex(task => task.id === taskId);
+                const taskName = tasks[taskIndex].name;
+                
+                tasks = tasks.filter(task => task.id !== taskId);
+                renderTasks();
+                
+                // Simular notificação para supervisores
+                notifySupervisors(`Tarefa excluída: "${taskName}"`);
+            }
+        }
+        
+        // Função para editar tarefa
+        function editTask(taskId) {
+            const task = tasks.find(task => task.id === taskId);
+            
+            if (task) {
+                editingTaskId = taskId;
+                modalTitle.textContent = 'Editar Tarefa';
+                
+                // Preencher formulário com dados da tarefa
+                taskName.value = task.name;
+                taskDescription.value = task.description;
+                taskPriority.value = task.priority;
+                taskDueDate.value = task.dueDate;
+                taskSupervisor.value = task.supervisor;
+                
+                // Abrir modal
+                taskModal.style.display = 'flex';
+            }
+        }
+        
+        // Função para notificar supervisores (simulação)
+        function notifySupervisors(message) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            console.log(`[${timeString}] Notificação para supervisores: ${message}`);
+            
+            // Em uma aplicação real, aqui seria implementada a notificação em tempo real
+            // via WebSocket ou tecnologia similar
+        }
+        
+        // Função para abrir modal de nova tarefa
+        function openAddTaskModal() {
+            editingTaskId = null;
+            modalTitle.textContent = 'Adicionar Nova Tarefa';
+            taskForm.reset();
+            
+            // Definir data padrão (amanhã)
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            taskDueDate.value = tomorrow.toISOString().split('T')[0];
+            
+            taskModal.style.display = 'flex';
+        }
+        
+        // Função para fechar modal
+        function closeModal() {
+            taskModal.style.display = 'none';
+            taskForm.reset();
+            editingTaskId = null;
+        }
+        
+        // Event Listeners
+        addTaskBtn.addEventListener('click', openAddTaskModal);
+        
+        cancelBtn.addEventListener('click', closeModal);
+        
+        taskForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const taskData = {
+                name: taskName.value,
+                description: taskDescription.value,
+                priority: taskPriority.value,
+                dueDate: taskDueDate.value,
+                supervisor: taskSupervisor.value
+            };
+            
+            if (editingTaskId) {
+                updateTask(editingTaskId, taskData);
+            } else {
+                addTask(taskData);
+            }
+        });
+        
+        // Fechar modal ao clicar fora dele
+        window.addEventListener('click', function(e) {
+            if (e.target === taskModal) {
+                closeModal();
+            }
+        });
+        
+        // Inicializar a tabela
+        renderTasks();
+        
+        // Simular atualizações periódicas em tempo real
+        setInterval(() => {
+            // Em uma aplicação real, aqui verificaria por atualizações do servidor
+            // e atualizaria a interface conforme necessário
+            console.log('Verificando atualizações em tempo real...');
+        }, 30000); // A cada 30 segundos
+    </script>
+</body>
+</html>
